@@ -14,6 +14,7 @@ let ToSuaveHttpMethod (httpMethod : System.Net.Http.HttpMethod) =
   match httpMethod.Method with
   | "GET" -> HttpMethod.GET
   | "POST" -> HttpMethod.POST
+  | "PUT" -> HttpMethod.PUT
   | _ -> HttpMethod.OTHER "unknown"
 
 let ToSuaveRequest (req : HttpRequestMessage) = 
