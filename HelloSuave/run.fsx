@@ -30,7 +30,7 @@ let toHttpResponseMessage (httpResult : HttpResult) =
   res.Content <- new ByteArrayContent(content httpResult.content)
   res
 
-let app = GET >=> OK "hello"
+let app = POST >=> OK "hello"
 
 let Run (req : HttpRequestMessage) =  
   let ctx = { HttpContext.empty with request = ToSuaveRequest req}
