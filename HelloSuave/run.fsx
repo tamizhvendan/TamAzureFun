@@ -39,5 +39,6 @@ let Run (req : HttpRequestMessage) =
     toHttpResponseMessage ctx.response
   | _ -> 
     let res = new HttpResponseMessage()
-    res.Content <- new ByteArrayContent(Array.empty)
+    res.Content <- new StringContent("")
+    res.StatusCode <- HttpStatusCode.NotFound
     res
