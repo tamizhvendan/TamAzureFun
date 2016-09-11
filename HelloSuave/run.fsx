@@ -33,7 +33,9 @@ let toHttpResponseMessage (httpResult : HttpResult) =
 let app = GET >=> OK "hello"
 
 let Run (req : HttpRequestMessage, log : TraceWriter) =  
-  log.Info("hello log")
+  req.Method.Method
+  |> sprintf "request type is %s"
+  |> log.Info
   let ctx = { HttpContext.empty with request = ToSuaveRequest req}
   let res = app ctx |> Async.RunSynchronously
   match res with
