@@ -30,7 +30,7 @@ let toHttpResponseMessage (httpResult : HttpResult) =
   res.Content <- new ByteArrayContent(content httpResult.content)
   res
 
-let app = POST >=> OK "hello"
+let app = choose [ POST >=> OK "POST"; GET >=> OK "GET"; PUT >=> OK "PUT"]
 
 let Run (req : HttpRequestMessage, log : TraceWriter) =  
   req.Method.Method
