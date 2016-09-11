@@ -1,12 +1,14 @@
+#load "app.fsx"
+open App
 open System
 open System.Net
 open System.Net.Http
 open System.Net.Http.Headers
+open System.Threading
+open System.Threading.Tasks
 open Suave.Http
 open Suave
 open Suave.Successful
-open System.Threading
-open System.Threading.Tasks
 open Suave.Operators
 open Suave.Filters
 
@@ -31,14 +33,12 @@ let toHttpResponseMessage (httpResult : HttpResult) =
   res.Content <- new ByteArrayContent(content httpResult.content)
   res
 
-let app = choose [ POST >=> OK "POST"; GET >=> OK "GET"; PUT >=> OK "PUT"]
-
 let Run (req : HttpRequestMessage, log : TraceWriter) =  
   req.Method.Method
   |> sprintf "request type is %s"
   |> log.Info
   let ctx = { HttpContext.empty with request = ToSuaveRequest req}
-  let res = app ctx |> Async.RunSynchronously
+  let res = system ctx |> Async.RunSynchronously
   match res with
   | Some ctx ->
     toHttpResponseMessage ctx.response
