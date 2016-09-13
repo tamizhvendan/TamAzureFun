@@ -28,14 +28,14 @@ let SuaveRawQuery (requestUri : System.Uri) =
   else
     ""
 
-let NetHeaderValue key (headers : HttpRequestHeaders) =
+let NetHeaderValue (headers : HttpRequestHeaders) key =
     headers
     |> Seq.tryFind (fun h -> h.Key = key)
     |> Option.map (fun h -> h.Value |> Seq.head)
 
 let SuaveRequest (req : HttpRequestMessage) = async {
   let! content = SuaveRawForm req.Content
-  let host = defaultArg (NetHeaderValue "Host" req.Headers) ""
+  let host = defaultArg (NetHeaderValue req.Headers "Host") ""
   return {HttpRequest.empty with
             url = req.RequestUri            
             ``method`` = SuaveHttpMethod req.Method
@@ -84,10 +84,14 @@ let RunWebPartAsync app httpRequest = async {
   return! SuaveRunAsync app suaveContext
 }
 
-let RunWebPartWithPathAsync headerName app httpRequest = async {
+let RunWebPartWithPathAsync app httpRequest = async {
   let! suaveContext = SuaveContext httpRequest
-  match NetHeaderValue headerName httpRequest.Headers with
-  | Some url ->
+  let netHeaderValue = NetHeaderValue httpRequest.Headers
+  match netHeaderValue "X-Suave-URL", netHeaderValue "X-Original-URL"  with
+  | Some suaveUrl, Some originalUrl ->
+    printfn "%s" <| suaveContext.request.url.ToString()
+    let url = suaveContext.request.url.ToString().Replace(originalUrl, suaveUrl)
+    printfn "%s" url
     let ctx = {suaveContext with request = {suaveContext.request with url = new System.Uri(url)}}
     return! SuaveRunAsync app ctx
   | _ -> return! SuaveRunAsync app suaveContext
