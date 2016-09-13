@@ -6,4 +6,6 @@ open System.Net.Http
 open Suave
 
 let Run (req : HttpRequestMessage, log : TraceWriter) = 
-  RunWebPartWithPathAsync "url" app req |> Async.RunSynchronously
+  let res, ctx = RunWebPartWithPathAsync "url" app req |> Async.RunSynchronously
+  ctx |> sprintf "%A" |> log.Info
+  res

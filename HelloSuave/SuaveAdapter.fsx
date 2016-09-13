@@ -71,12 +71,12 @@ let SuaveRunAsync app suaveContext = async {
   let! res = app suaveContext
   match res with
   | Some ctx ->
-    return NetHttpResponseMessage ctx.response
+    return (NetHttpResponseMessage ctx.response, ctx)
   | _ ->
     let res = new HttpResponseMessage()
     res.Content <- new ByteArrayContent(Array.empty)
     res.StatusCode <- HttpStatusCode.NotFound
-    return res
+    return res,suaveContext 
 }
 
 let RunWebPartAsync app httpRequest = async {
