@@ -1,7 +1,13 @@
-open Suave.Http
+module App
 open Suave
 open Suave.Successful
 open Suave.Operators
 open Suave.Filters
 
-let system = choose [ POST >=> OK "POST"; GET >=> OK "GET"; PUT >=> OK "PUT"]
+let app = 
+  choose [
+    GET >=> OK "GET"
+    POST >=> OK "POST"
+    PUT >=> OK "PUT"
+    DELETE >=> OK "DELETE"
+  ]
