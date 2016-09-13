@@ -28,14 +28,21 @@ let SuaveRawQuery (requestUri : System.Uri) =
   else
     ""
 
+let NetHeaderValue key (headers : HttpRequestHeaders) =
+    headers
+    |> Seq.tryFind (fun h -> h.Key = key)
+    |> Option.map (fun h -> h.Value |> Seq.head)
+
 let SuaveRequest (req : HttpRequestMessage) = async {
   let! content = SuaveRawForm req.Content
+  let host = defaultArg (NetHeaderValue "Host" req.Headers) ""
   return {HttpRequest.empty with
-            url = req.RequestUri
+            url = req.RequestUri            
             ``method`` = SuaveHttpMethod req.Method
             headers = SuaveHeaders req.Headers
             rawForm = content
-            rawQuery = SuaveRawQuery req.RequestUri}
+            rawQuery = SuaveRawQuery req.RequestUri
+            host = host}
 }
   
 
@@ -60,16 +67,28 @@ let SuaveContext httpRequest = async {
   return { HttpContext.empty with request = suaveReq}
 }   
 
-let RunWebPartAsync app httpRequest f = async {
-  let! suaveContext = SuaveContext httpRequest
+let SuaveRunAsync app suaveContext = async {
   let! res = app suaveContext
   match res with
   | Some ctx ->
-    f ctx
     return NetHttpResponseMessage ctx.response
   | _ ->
     let res = new HttpResponseMessage()
     res.Content <- new ByteArrayContent(Array.empty)
     res.StatusCode <- HttpStatusCode.NotFound
     return res
+}
+
+let RunWebPartAsync app httpRequest = async {
+  let! suaveContext = SuaveContext httpRequest
+  return! SuaveRunAsync app suaveContext
+}
+
+let RunWebPartWithPathAsync queryParamKey app httpRequest = async {
+  let! suaveContext = SuaveContext httpRequest
+  match suaveContext.request.[queryParamKey] with
+  | Some url ->
+    let ctx = {suaveContext with request = {suaveContext.request with url = new System.Uri(url)}}
+    return! SuaveRunAsync app ctx
+  | _ -> return! SuaveRunAsync app suaveContext
 }

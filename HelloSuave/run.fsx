@@ -5,7 +5,5 @@ open App
 open System.Net.Http
 open Suave
 
-let Run (req : HttpRequestMessage, log : TraceWriter) =  
-  let logInfo (x : HttpContext) =
-    sprintf "%A\n" x |> log.Info
-  RunWebPartAsync app req logInfo |> Async.RunSynchronously
+let Run (req : HttpRequestMessage, log : TraceWriter) = 
+  RunWebPartWithPathAsync "url" app req |> Async.RunSynchronously
