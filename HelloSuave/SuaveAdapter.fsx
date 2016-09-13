@@ -84,7 +84,7 @@ let RunWebPartAsync app httpRequest = async {
   return! SuaveRunAsync app suaveContext
 }
 
-let RunWebPartWithPathAsync queryParamKey app httpRequest = async {
+let RunWebPartWithPathAsync headerName app httpRequest = async {
   let! suaveContext = SuaveContext httpRequest
   match NetHeaderValue headerName httpRequest.Headers with
   | Some url ->
