@@ -89,9 +89,7 @@ let RunWebPartWithPathAsync app httpRequest = async {
   let netHeaderValue = NetHeaderValue httpRequest.Headers
   match netHeaderValue "X-Suave-URL", netHeaderValue "X-Original-URL"  with
   | Some suaveUrl, Some originalUrl ->
-    printfn "%s" <| suaveContext.request.url.ToString()
     let url = suaveContext.request.url.ToString().Replace(originalUrl, suaveUrl)
-    printfn "%s" url
     let ctx = {suaveContext with request = {suaveContext.request with url = new System.Uri(url)}}
     return! SuaveRunAsync app ctx
   | _ -> return! SuaveRunAsync app suaveContext
