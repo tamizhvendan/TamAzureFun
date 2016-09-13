@@ -51,6 +51,7 @@ let NetStatusCode = function
 | HttpCode.HTTP_201 -> HttpStatusCode.Created
 | HttpCode.HTTP_400 -> HttpStatusCode.BadRequest
 | HttpCode.HTTP_404 -> HttpStatusCode.NotFound
+| HttpCode.HTTP_202 -> HttpStatusCode.Accepted
 | _ -> HttpStatusCode.Ambiguous
 
 let NetHttpResponseMessage httpResult =
@@ -89,8 +90,11 @@ let RunWebPartWithPathAsync app httpRequest = async {
   let netHeaderValue = NetHeaderValue httpRequest.Headers
   match netHeaderValue "X-Suave-URL", netHeaderValue "X-Original-URL"  with
   | Some suaveUrl, Some originalUrl ->
-    let url = suaveContext.request.url.ToString().Replace(originalUrl, suaveUrl)
-    let ctx = {suaveContext with request = {suaveContext.request with url = new System.Uri(url)}}
+    let url = suaveContext.request.url.ToString().Replace(originalUrl, suaveUrl) |> System.Uri
+    let ctx = {suaveContext with 
+                request = {suaveContext.request with 
+                            url = url 
+                            rawQuery = SuaveRawQuery url}}
     return! SuaveRunAsync app ctx
   | _ -> return! SuaveRunAsync app suaveContext
 }
