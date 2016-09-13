@@ -23,7 +23,10 @@ let SuaveRawForm (content : System.Net.Http.HttpContent) = async {
 }
 
 let SuaveRawQuery (requestUri : System.Uri) =
-  requestUri.Query.Substring(1)
+  if requestUri.Query.Length > 1 then
+    requestUri.Query.Substring(1)
+  else
+    ""
 
 let SuaveRequest (req : HttpRequestMessage) = async {
   let! content = SuaveRawForm req.Content
