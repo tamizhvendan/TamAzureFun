@@ -12,9 +12,8 @@ type Person = {
   Email : string
 }
 
-let createPerson f person = 
+let createPerson person = 
   let newPerson = {person with Id = Guid.NewGuid()}
-  newPerson |> sprintf "created : %A" |> f
   newPerson
 
 let getPeople () = [
