@@ -86,7 +86,7 @@ let RunWebPartAsync app httpRequest = async {
 
 let RunWebPartWithPathAsync queryParamKey app httpRequest = async {
   let! suaveContext = SuaveContext httpRequest
-  match suaveContext.request.[queryParamKey] with
+  match NetHeaderValue headerName httpRequest.Headers with
   | Some url ->
     let ctx = {suaveContext with request = {suaveContext.request with url = new System.Uri(url)}}
     return! SuaveRunAsync app ctx
