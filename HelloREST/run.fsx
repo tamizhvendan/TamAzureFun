@@ -7,5 +7,5 @@ open Suave
 
 let Run (req : HttpRequestMessage, log : TraceWriter) = 
   let res, ctx = RunWebPartWithPathAsync app req |> Async.RunSynchronously
-  printfn "%A" ctx
+  sprintf "%A" ctx |> log.Info
   res
