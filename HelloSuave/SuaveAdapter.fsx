@@ -37,14 +37,14 @@ let SuaveRequest (req : HttpRequestMessage) = async {
   let! content = SuaveRawForm req.Content
   let host = defaultArg (NetHeaderValue req.Headers "Host") ""
   return {HttpRequest.empty with
-            url = req.RequestUri            
+            url = req.RequestUri
             ``method`` = SuaveHttpMethod req.Method
             headers = SuaveHeaders req.Headers
             rawForm = content
             rawQuery = SuaveRawQuery req.RequestUri
             host = host}
 }
-  
+
 
 let NetStatusCode = function
 | HttpCode.HTTP_200 -> HttpStatusCode.OK
@@ -59,14 +59,16 @@ let NetHttpResponseMessage httpResult =
   | Bytes c -> c
   | _ -> Array.empty
   let res = new HttpResponseMessage()
-  res.Content <- new ByteArrayContent(content httpResult.content)
+  let content = new ByteArrayContent(content httpResult.content)
+  httpResult.headers |> List.iter content.Headers.Add
+  res.Content <- content
   res.StatusCode <- NetStatusCode httpResult.status
   res
 
 let SuaveContext httpRequest = async {
   let! suaveReq = SuaveRequest httpRequest
   return { HttpContext.empty with request = suaveReq}
-}   
+}
 
 let SuaveRunAsync app suaveContext = async {
   let! res = app suaveContext
@@ -77,7 +79,7 @@ let SuaveRunAsync app suaveContext = async {
     let res = new HttpResponseMessage()
     res.Content <- new ByteArrayContent(Array.empty)
     res.StatusCode <- HttpStatusCode.NotFound
-    return res,suaveContext 
+    return res,suaveContext
 }
 
 let RunWebPartAsync app httpRequest = async {
